@@ -15,5 +15,5 @@ Add detours.lib to Linker additional libraries.
 **Hooked Functions:**
 - CredIsMarshaledCredentialW
 - CredReadW
-- CryptProtectMemory 
+- CryptProtectMemory <br>
   microsoft did a trick, the address to pointer not as describe in dpapi.h, need to find function address when loading dll.
