@@ -16,4 +16,4 @@ Add detours.lib to Linker additional libraries.
 - CredIsMarshaledCredentialW
 - CredReadW
 - CryptProtectMemory <br>
-  microsoft did a trick, the address to pointer not as describe in dpapi.h, need to find function address when loading dll.
+  Microsoft try to hide it, The address to the function is dynamic, you need to find it yourself.
