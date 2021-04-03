@@ -18,7 +18,7 @@ Add detours.lib to Linker additional libraries.
 - CryptProtectMemory <br>
   Microsoft try to hide it, The address to the function is dynamic, you need to find it yourself.
   
-  **References:**
-  https://github.com/0x09AL/RdpThief
-  https://www.mdsec.co.uk/2019/11/rdpthief-extracting-clear-text-credentials-from-remote-desktop-clients/
+**References:**<br>
+https://github.com/0x09AL/RdpThief<br>
+https://www.mdsec.co.uk/2019/11/rdpthief-extracting-clear-text-credentials-from-remote-desktop-clients/
   
