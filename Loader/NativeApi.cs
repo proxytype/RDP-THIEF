@@ -47,12 +47,6 @@ namespace Loader
         public static extern bool CloseHandle(IntPtr hObject);
 
         //Process Flags
-        public const int PROCESS_CREATE_THREAD = 0x0002;
-        public const int PROCESS_QUERY_INFORMATION = 0x0400;
-        public const int PROCESS_VM_OPERATION = 0x0008;
-        public const int PROCESS_VM_WRITE = 0x0020;
-        public const int PROCESS_VM_READ = 0x0010;
-
         const uint DELETE = 0x00010000;
         const uint READ_CONTROL = 0x00020000;
         const uint WRITE_DAC = 0x00040000;
